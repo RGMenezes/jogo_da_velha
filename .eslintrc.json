@@ -1,0 +1,8 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "arrow-body-style": ["error", "as-needed"],
+    "camelcase": "error",
+    "dot-notation": "error"
+  }
+}
