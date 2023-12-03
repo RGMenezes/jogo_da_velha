@@ -8,4 +8,12 @@
   --color-white: #ffffff;
 
   --font: 'Roboto', sans-serif;
+
+  font-family: 'Roboto', sans-serif;
+  color: var(--color-background);
+}
+
+*{
+  margin: 0px;
+  box-sizing: border-box;
 }

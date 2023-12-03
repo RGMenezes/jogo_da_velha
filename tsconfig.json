@@ -25,6 +25,15 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@form/*": [
+        "./src/components/form/*"
+      ],
+      "@layout/*": [
+        "./src/components/layout/*"
+      ],
+      "@public/*": [
+        "./public/*"
       ]
     }
   },
