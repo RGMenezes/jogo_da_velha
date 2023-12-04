@@ -1,0 +1,28 @@
+.container_form{
+  height: 98vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form{
+  width: fit-content;
+  padding: 30px 20px;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+
+  border: 1px solid var(--color-background);
+  border-radius: 15px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.container_input{
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px;
+}

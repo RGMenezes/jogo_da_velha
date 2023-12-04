@@ -13,7 +13,7 @@ const nextAuthOptions: NextAuthOptions = {
         email: { label: 'email', type: 'text'},
         password: { label: 'password', type: 'password'}
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, req): Promise<any> {
         Database()
 
         if(!credentials?.email || !credentials?.password ){
@@ -21,7 +21,7 @@ const nextAuthOptions: NextAuthOptions = {
         }
         
         try {
-          const user: any = await User.findOne({email: credentials?.email})
+          const user = await User.findOne({email: credentials?.email})
                         
           if(!user){
             throw new Error("Esta conta não exite!");
