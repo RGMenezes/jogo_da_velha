@@ -4,8 +4,6 @@ export interface UserInterface{
   userName: string;
   email: string;
   password: string;
-  wage: number;
-  theme ?: boolean;
 }
 
 export interface UserModelInterface extends UserInterface, Document {}
@@ -22,14 +20,6 @@ export const UserSchema: Schema = new Schema({
   password: {
     type: String,
     require: true
-  },
-  wage: {
-    type: Number, 
-    require: true
-  },
-  theme: {
-    type: Boolean,
-    default: false
   }
 })
 
