@@ -8,7 +8,7 @@ import Button from '@form/Button'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
-  const pageBack = () :void => router.back()
+  const backPage = () :void => router.back()
   return (
     <section className={styles.container}>
       <h1>Lista de jogadores online</h1>
@@ -17,7 +17,7 @@ export default function SearchPlayer(){
         <li className={styles.player}>Teste</li>
       </ul>
 
-      <Button type='button' handleOnClick={pageBack}>
+      <Button type='button' handleOnClick={backPage}>
         Voltar
       </Button>
     </section>

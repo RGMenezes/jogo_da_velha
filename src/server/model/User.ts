@@ -1,4 +1,4 @@
-import { Schema, Document, model } from "mongoose"
+import { Schema, Document, model, Model } from "mongoose"
 
 export interface UserInterface{
   userName: string;
@@ -7,6 +7,9 @@ export interface UserInterface{
 }
 
 export interface UserModelInterface extends UserInterface, Document {}
+
+let user: Model<UserModelInterface>
+
 
 export const UserSchema: Schema = new Schema({
   userName: {
@@ -23,4 +26,10 @@ export const UserSchema: Schema = new Schema({
   }
 })
 
-export default model<UserModelInterface>('user', UserSchema)
+try {
+  user = model<UserModelInterface>('user')
+} catch (error) {
+  user = model<UserModelInterface>('user', UserSchema)
+}
+
+export default user
