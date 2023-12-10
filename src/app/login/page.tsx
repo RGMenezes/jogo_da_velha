@@ -21,9 +21,18 @@ export default function Login(){
 
       const data = e.target as HTMLFormElement
       
-      signIn("credentials", {email: data.email.value, password: data.password.value}).then((res) => {
+      signIn("credentials", {email: data.email.value, password: data.password.value, redirect: false}).then((res) => {
+          if(res){
+            if(res.ok){
+              router.push('/search_player')
+            }else{
+              alert(res.error)
+            }
+          }else{
+            alert(new Error('Algo inesperado aconteceu, tente novamente!'))
+          }
+          console.log('Estamos nesse aqui')
           console.log(res)
-          //router.push("/");
       }).catch((err) => {
           console.log(`Erro ao acessar o servidor: ${err}`);
       })
@@ -55,6 +64,7 @@ export default function Login(){
             type='password'
             id='password'
             name='password'
+            autoComplete='current-password'
             minLength={8}
             require={true}
           />

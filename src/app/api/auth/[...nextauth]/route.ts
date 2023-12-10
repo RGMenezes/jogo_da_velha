@@ -24,7 +24,7 @@ const nextAuthOptions: NextAuthOptions = {
           const user = await User.findOne({email: credentials?.email})
                         
           if(!user){
-            throw new Error("Esta conta não exite!");
+            throw new Error("Esta conta não existe!");
           };
 
           const match = await bcrypt.compare(credentials?.password, user.password)
@@ -35,7 +35,7 @@ const nextAuthOptions: NextAuthOptions = {
             throw new Error("Senha incorreta!")
           }
         } catch (err) {
-          return err
+          return Promise.reject(new Error(`${err}`))
         }
       },
     })

@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <title>Jogo da Velha</title>
-      <body>
+      <body suppressHydrationWarning={true}>
         <SessionProvider>
           {children}
         </SessionProvider>
