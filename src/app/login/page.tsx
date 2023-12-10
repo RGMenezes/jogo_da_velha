@@ -31,10 +31,8 @@ export default function Login(){
           }else{
             alert(new Error('Algo inesperado aconteceu, tente novamente!'))
           }
-          console.log('Estamos nesse aqui')
-          console.log(res)
       }).catch((err) => {
-          console.log(`Erro ao acessar o servidor: ${err}`);
+          alert(new Error(`Erro ao acessar o servidor: ${err}`))
       })
   };
 

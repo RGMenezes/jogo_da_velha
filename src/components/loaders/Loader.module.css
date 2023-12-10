@@ -1,0 +1,31 @@
+@keyframes paint {
+  0%{
+    stroke-dashoffset: 0px;
+  }
+  50%{
+    stroke-dashoffset: 190px;
+  }
+  100%{
+    stroke-dashoffset: 380px;
+  }
+}
+
+.container_loader{
+  height: 100vmax;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--color-background);
+}
+
+.loader{
+  stroke: var(--color-main);
+  stroke-width: 6px;
+  stroke-dasharray: 190px;
+  stroke-dashoffset: 0px;
+
+  animation: paint 5s infinite;
+}
