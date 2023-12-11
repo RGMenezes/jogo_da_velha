@@ -1,6 +1,8 @@
 'use client'
+import store from '@/redux/store';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react'
+import { Provider } from 'react-redux';
 
 export default function RootLayout({
   children,
@@ -12,7 +14,9 @@ export default function RootLayout({
       <title>Jogo da Velha</title>
       <body suppressHydrationWarning={true}>
         <SessionProvider>
-          {children}
+          <Provider store={store}>
+            {children}
+          </Provider>
         </SessionProvider>
       </body>
     </html>
