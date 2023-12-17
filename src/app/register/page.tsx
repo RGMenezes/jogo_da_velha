@@ -4,16 +4,17 @@ import InputText from '@form/InputText'
 import Button from "@form/Button"
 import LinkButton from '@layout/LinkButton'
 import styles from './page.module.css'
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { FormEvent } from 'react';
 import { FaArrowLeft } from "react-icons/fa";
 import axios from '@/server/axios'
+import { useDispatch } from 'react-redux'
+import { handleLoading } from '@/redux/tool/slice'
 
 export default function Register(){
   const router: AppRouterInstance = useRouter()
-
+  const dispatch = useDispatch()
 
   const backPage = () :void => router.back()
 
@@ -38,15 +39,17 @@ export default function Register(){
           }
 
           axios.post('/register', newUser).then((res) => {
+            dispatch(handleLoading({loading: true}))
             if(!res.data.error){
               router.push('/login')
             }else{
               alert(res.data.error)
             }
           }).catch((err) => {
+            dispatch(handleLoading({loading: true}))
             alert('Erro ao enviar dados!')
             console.error(err)
-          })
+          }).finally(() => dispatch(handleLoading({loading: false})))
         }else{
           alert('A senha deve ser a mesma nos dois campos!')
         }

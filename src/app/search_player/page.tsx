@@ -6,12 +6,13 @@ import styles from './page.module.css'
 
 import Button from '@form/Button'
 import { useSelector } from 'react-redux'
+import { User } from '@/redux/user/slice'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
   const backPage = () :void => router.back()
 
-  const user = useSelector((state: {userReducer: any}) => state.userReducer)
+  const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   return (
     <section className={styles.container}>

@@ -10,10 +10,14 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { FormEvent } from 'react';
 import { FaArrowLeft } from "react-icons/fa"
 import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { handleLoading } from '@/redux/tool/slice'
+import { addRequestMeta } from 'next/dist/server/request-meta'
 
 export default function Login(){
   const router: AppRouterInstance = useRouter()
   const {data: session, status} = useSession()
+  const dispath = useDispatch()
 
   const backPage = () :void => router.back()
 
@@ -30,6 +34,7 @@ export default function Login(){
 
       if(status == 'unauthenticated'){
         signIn("credentials", {email: data.email.value, password: data.password.value, redirect: false}).then((res) => {
+          dispath(handleLoading({loading: true}))
           if(res){
             if(res.ok){
               router.push('/search_player')
@@ -40,8 +45,9 @@ export default function Login(){
             alert(new Error('Algo inesperado aconteceu, tente novamente!'))
           }
         }).catch((err) => {
+            dispath(handleLoading({loading: true}))
             alert(new Error(`Erro ao acessar o servidor: ${err}`))
-        })
+        }).finally(() => dispath(handleLoading({loading: false})))
       }else{
         alert('Você ainda esta logado!')
       }
