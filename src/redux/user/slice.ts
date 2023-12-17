@@ -20,6 +20,11 @@ const userSlice = createSlice({
       state.userName = action.payload.userName
       state.email = action.payload.email
       state._id = action.payload._id
+    },
+    logout: (state) => {
+      state.userName = undefined
+      state.email = undefined
+      state._id = undefined
     }
   }
 })

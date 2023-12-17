@@ -4,52 +4,47 @@ import InputText from '@form/InputText'
 import Button from "@form/Button"
 import LinkButton from '@layout/LinkButton'
 import styles from './page.module.css'
-import { signIn, signOut } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { FormEvent } from 'react';
-import { FaArrowLeft } from "react-icons/fa";
-import axios from '@/server/axios'
-import { useDispatch } from 'react-redux'
-import { login } from '@/redux/user/slice'
+import { FaArrowLeft } from "react-icons/fa"
+import { useEffect } from 'react'
 
 export default function Login(){
   const router: AppRouterInstance = useRouter()
-  const dispatch = useDispatch()
+  const {data: session, status} = useSession()
 
   const backPage = () :void => router.back()
+
+  useEffect(() => {
+    if(status == 'authenticated'){
+      router.push('/search_player')
+    }
+  },[status, router])
 
   function submitLogin(e: FormEvent<HTMLFormElement>){
       e.preventDefault();
 
       const data = e.target as HTMLFormElement
-      
-      signIn("credentials", {email: data.email.value, password: data.password.value, redirect: false}).then((res) => {
+
+      if(status == 'unauthenticated'){
+        signIn("credentials", {email: data.email.value, password: data.password.value, redirect: false}).then((res) => {
           if(res){
             if(res.ok){
-              interface UserData{
-                email: string
-                userName: string
-                _id: string
-              }
-
-              axios.post('/user', {email: data.email.value}).then((user: {data: UserData}) => {
-                dispatch(login(user.data))
-                router.push('/search_player')
-              }).catch((err) => {
-                signOut();
-                console.log(err)
-                alert('ERRO ao salvar usuário após login! Tente novamente...')
-              })
+              router.push('/search_player')
             }else{
               alert(res.error)
             }
           }else{
             alert(new Error('Algo inesperado aconteceu, tente novamente!'))
           }
-      }).catch((err) => {
-          alert(new Error(`Erro ao acessar o servidor: ${err}`))
-      })
+        }).catch((err) => {
+            alert(new Error(`Erro ao acessar o servidor: ${err}`))
+        })
+      }else{
+        alert('Você ainda esta logado!')
+      }
   };
 
   return (
