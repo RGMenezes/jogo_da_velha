@@ -7,12 +7,22 @@ import styles from './page.module.css'
 import Button from '@form/Button'
 import { useSelector } from 'react-redux'
 import { User } from '@/redux/user/slice'
+import { useEffect } from 'react'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
   const backPage = () :void => router.back()
 
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
+
+  useEffect(() => {
+    const eventSource = new EventSource('/api/multiplayer')
+
+    eventSource.onmessage = (e) => {
+      const data = JSON.parse(e.data)
+      console.log(data)
+    }
+  }, [])
 
   return (
     <section className={styles.container}>
