@@ -5,13 +5,15 @@ let messageGlobal: string;
 export async function GET( req: Request) {
   const { readable, writable } = new TransformStream()
 
-  const sendEvent = (data: Record<string, any>) => {
-    writable.getWriter().write(`data: ${JSON.stringify(data)}\n\n`)
+  const sendEvent = async (data: Record<string, any>) => {
+    const writer = writable.getWriter()
+    await writer.write(`data: ${JSON.stringify(data)}\n\n`)
+    writer.releaseLock()
   }
 
-  setTimeout(() => {
+  setInterval(() => {
     sendEvent({ message: `testando ${messageGlobal}` })
-  }, 10000)
+  }, 5000)
   
   const res =  new Response(readable, {
     status: 200,
