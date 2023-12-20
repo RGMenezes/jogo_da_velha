@@ -8,10 +8,25 @@
   gap: 40px;
 }
 
+.profile{
+  padding: 15px;
+  
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
 .lista{
   width: 400px;
   min-height: 500px;
   padding: 15px;
+
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 5px;
 
   border: 1px solid var(--color-background);
   border-radius: 15px;

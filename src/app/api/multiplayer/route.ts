@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server"
-
-let messageGlobal: string;
+import Database from "@/server/database/DataBase"
+import LogedUser from "@/server/model/LogedUser"
+import mongoose from "mongoose"
 
 export async function GET( req: Request) {
+  Database()
+  const db = mongoose.connection.db
+  const collection = db.collection('logedusers')
+
   const { readable, writable } = new TransformStream()
 
   const sendEvent = async (data: Record<string, any>) => {
@@ -11,11 +15,22 @@ export async function GET( req: Request) {
     writer.releaseLock()
   }
 
-  setInterval(() => {
-    sendEvent({ message: `testando ${messageGlobal}` })
-  }, 5000)
+  function updateListLogedUser(){
+    LogedUser.find({}).then((res) => {
+      sendEvent({logedUsers: res})
+    }).catch(err => console.log(err))
+  }
+
+  const changeStream = collection.watch()
+
+  changeStream.on('change', (change) => {
+    console.log(change)
+    updateListLogedUser()
+  })
+
+ updateListLogedUser()
   
-  const res =  new Response(readable, {
+  return new Response(readable, {
     status: 200,
     headers: {
       'Content-Type': 'text/event-stream',
@@ -23,14 +38,4 @@ export async function GET( req: Request) {
       'Connection': 'keep-alive',
     }
   })
-
-  return res
-}
-
-export async function POST(req: Request) {
-  const { message }: {message: string} = await req.json()
-  
-  messageGlobal = message
-
-  return NextResponse.json("ação no servidor")
 }
