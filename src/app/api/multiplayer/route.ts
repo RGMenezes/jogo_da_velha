@@ -2,22 +2,14 @@ import Database from "@/server/database/DataBase"
 import LogedUser from "@/server/model/LogedUser"
 import mongoose from "mongoose"
 
-export async function GET( req: Request) {
+export async function GET( req: Request ) {
 
   async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
     const writer = writable.getWriter()
-    try {
-      await writer.ready
-      await writer.write(`data: ${JSON.stringify(data)}\n\n`)
-      writer.close()
 
-    } catch (err) {
-      await writer.abort()
-      console.error("Erro ao escrever no stream: ", err)
-
-    } finally {
-      writer.releaseLock()
-    }
+    await writer.write(`data: ${JSON.stringify(data)}\n\n`).then().catch((err) => {
+      writer.abort()
+    }).finally(() => writer.releaseLock())
   }
 
   async function updateListLogedUser(writable: WritableStream<any>){
