@@ -3,46 +3,57 @@ import LogedUser from "@/server/model/LogedUser"
 import mongoose from "mongoose"
 
 export async function GET( req: Request) {
-  Database()
-  const db = mongoose.connection.db
-  const collection = db.collection('logedusers')
 
-  const { readable, writable } = new TransformStream()
-
-  async function sendEvent(data: Record<string, any>) {
+  async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
     const writer = writable.getWriter()
     try {
-      writer.ready
+      await writer.ready
       await writer.write(`data: ${JSON.stringify(data)}\n\n`)
+      writer.close()
+
     } catch (err) {
-      writer.abort
+      await writer.abort()
       console.error("Erro ao escrever no stream: ", err)
+
     } finally {
       writer.releaseLock()
     }
   }
 
-  async function updateListLogedUser(){
+  async function updateListLogedUser(writable: WritableStream<any>){
     await LogedUser.find({}).then((res) => {
-      sendEvent({logedUsers: res})
+      sendEvent({logedUsers: res}, writable)
     }).catch(err => console.log(err))
   }
 
-  const changeStream = collection.watch()
-
-  changeStream.on('change', (change) => {
-    console.log(change)
-    updateListLogedUser()
-  })
-
-  updateListLogedUser()
+  try {
+    Database()
+    const db = mongoose.connection.db
+    const collection = db.collection('logedusers')
+    const { readable, writable } = new TransformStream()
   
-  return new Response(readable, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    }
-  })
+    const changeStream = collection.watch()
+  
+    changeStream.on('change', (change) => updateListLogedUser(writable))
+  
+    updateListLogedUser(writable)
+    
+    return new Response(readable, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      }
+    })
+  } catch (err) {
+    return new Response(`Error: ${err}`, {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      }
+    })
+  }
 }
