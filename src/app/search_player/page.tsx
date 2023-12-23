@@ -26,7 +26,6 @@ export default function SearchPlayer(){
       if(data.logedUsers){
         setListUsers(data.logedUsers)
       }
-      console.log(data.message)
     }
   }, [])
 

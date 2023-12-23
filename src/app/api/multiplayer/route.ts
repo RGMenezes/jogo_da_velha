@@ -9,14 +9,21 @@ export async function GET( req: Request) {
 
   const { readable, writable } = new TransformStream()
 
-  const sendEvent = async (data: Record<string, any>) => {
+  async function sendEvent(data: Record<string, any>) {
     const writer = writable.getWriter()
-    await writer.write(`data: ${JSON.stringify(data)}\n\n`)
-    writer.releaseLock()
+    try {
+      writer.ready
+      await writer.write(`data: ${JSON.stringify(data)}\n\n`)
+    } catch (err) {
+      writer.abort
+      console.error("Erro ao escrever no stream: ", err)
+    } finally {
+      writer.releaseLock()
+    }
   }
 
-  function updateListLogedUser(){
-    LogedUser.find({}).then((res) => {
+  async function updateListLogedUser(){
+    await LogedUser.find({}).then((res) => {
       sendEvent({logedUsers: res})
     }).catch(err => console.log(err))
   }
@@ -28,7 +35,7 @@ export async function GET( req: Request) {
     updateListLogedUser()
   })
 
- updateListLogedUser()
+  updateListLogedUser()
   
   return new Response(readable, {
     status: 200,
