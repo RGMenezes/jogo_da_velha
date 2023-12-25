@@ -10,11 +10,13 @@ import { User } from '@/redux/user/slice'
 import { useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { LogedUserModelInterface } from '@/server/model/LogedUser'
+import { InviteModelInterface } from '@/server/model/Invites'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
   const backPage = () :void => router.back()
-  const [listUsers, setListUsers] = useState([])  
+  const [listUsers, setListUsers] = useState([])
+  const [listInvites, setListInvites]: any[] = useState([])  
 
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
@@ -29,6 +31,25 @@ export default function SearchPlayer(){
     }
   }, [])
 
+  useEffect(() => {
+    const eventSource = new EventSource('/api/multiplayer/guest')
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      if(data.invites){
+        const invites = data.invites
+        const arrayInvites: object[] = []
+        invites.map((item: InviteModelInterface) => {
+          if(item.recipient == user.userName){
+            arrayInvites.push(item)
+          }
+        })
+        setListInvites(arrayInvites)
+      }
+    }
+  }, [user.userName])
+
+
   function userOnline() {
     if(user._id){
       axios.post('/multiplayer/online', {userId: user._id}).then((res) => {
@@ -39,6 +60,19 @@ export default function SearchPlayer(){
       })
     }else{
       alert('Usuário não detectado tente novamente!')
+    }
+  }
+
+  function inviteParty(inviteAdversary: string){
+    if(user.userName == inviteAdversary){
+      alert('Você não pode jogar contra você mesmo.')
+    }else{
+      axios.post('/multiplayer/invite', {adversary: inviteAdversary, user: user.userName}).then((res) => {
+        alert(res.data)
+      }).catch(err => {
+        console.log(err)
+        alert('Não foi possível conectar com o servidor!')
+      })
     }
   }
 
@@ -54,9 +88,26 @@ export default function SearchPlayer(){
         </Button>
       </div>
 
-      <ul className={styles.lista}>
-        {listUsers.map((item: LogedUserModelInterface, index) => <li key={`UsuarioLogado${index}`} value={item._id} className={styles.player}>{item.user}</li>)}
+      <ul className={styles.list}>
+        {listUsers.map((item: LogedUserModelInterface, index: number) => (
+          <li key={`UsuarioLogado${index}`} value={item._id} onClick={() => inviteParty(item.user)} className={styles.player}>{item.user}</li>
+        ))}
       </ul>
+
+      {listInvites && (
+        <ol className={styles.container_invites}>
+          <h3>Convites</h3>
+          {listInvites.map((item: InviteModelInterface, index: number) => (
+            <li className={styles.invite} key={`Contive${index}`}>
+              <h4>{item.sender}</h4>
+              <div className={styles.container_x}>
+                <Button type='button'>Rejeitar</Button>
+                <Button type='button'>Aceitar</Button>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
 
       <Button type='button' handleOnClick={backPage}>
         Voltar
