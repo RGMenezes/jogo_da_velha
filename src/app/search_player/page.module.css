@@ -62,7 +62,7 @@
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 10px;
 
   border: 1px solid var(--color-background);
   border-radius: 15px;

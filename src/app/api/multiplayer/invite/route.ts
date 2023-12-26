@@ -9,7 +9,7 @@ export async function POST( req: Request ) {
 
   try {
 
-    const adversaryExists = LogedUser.find({user: adversary})
+    const adversaryExists = await LogedUser.find({user: adversary})
     
     if(!adversaryExists) throw new Error('Adversario não está online!')
 

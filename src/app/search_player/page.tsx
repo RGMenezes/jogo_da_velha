@@ -76,6 +76,15 @@ export default function SearchPlayer(){
     }
   }
 
+  function inviteResponse(res: boolean, id: string){
+    axios.post('/multiplayer/response', {inviteId: id, inviteResponse: res}).then((res) => {
+      alert(res.data)
+    }).catch(err => {
+      console.log(err)
+      alert('Não foi possível conectar com o servidor!')
+    })
+  }
+
   return (
     <section className={styles.container}>
       <h1>Lista de jogadores online</h1>
@@ -98,13 +107,18 @@ export default function SearchPlayer(){
         <ol className={styles.container_invites}>
           <h3>Convites</h3>
           {listInvites.map((item: InviteModelInterface, index: number) => (
-            <li className={styles.invite} key={`Contive${index}`}>
-              <h4>{item.sender}</h4>
-              <div className={styles.container_x}>
-                <Button type='button'>Rejeitar</Button>
-                <Button type='button'>Aceitar</Button>
-              </div>
-            </li>
+            <>{
+                item.response === undefined ?
+                <li className={styles.invite} key={`Contive${index}`}>
+                  <h4>{item.sender}</h4>
+                  <div className={styles.container_x}>
+                    <Button handleOnClick={() => inviteResponse(false, item._id)} type='button'>Rejeitar</Button>
+                    <Button handleOnClick={() => inviteResponse(true, item._id)}type='button'>Aceitar</Button>
+                  </div>
+                </li>
+              : 
+                <p>Você já respondeu todos os convites!</p>
+              }</>
           ))}
         </ol>
       )}
