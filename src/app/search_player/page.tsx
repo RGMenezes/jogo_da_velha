@@ -107,9 +107,9 @@ export default function SearchPlayer(){
         <ol className={styles.container_invites}>
           <h3>Convites</h3>
           {listInvites.map((item: InviteModelInterface, index: number) => (
-            <>{
-                item.response === undefined ?
-                <li className={styles.invite} key={`Contive${index}`}>
+            <div key={`Contive${index}`}>{
+                item.response == undefined ?
+                <li className={styles.invite}>
                   <h4>{item.sender}</h4>
                   <div className={styles.container_x}>
                     <Button handleOnClick={() => inviteResponse(false, item._id)} type='button'>Rejeitar</Button>
@@ -118,7 +118,7 @@ export default function SearchPlayer(){
                 </li>
               : 
                 <p>Você já respondeu todos os convites!</p>
-              }</>
+              }</div>
           ))}
         </ol>
       )}
