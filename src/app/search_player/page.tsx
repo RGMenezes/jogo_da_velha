@@ -40,14 +40,33 @@ export default function SearchPlayer(){
         const invites = data.invites
         const arrayInvites: object[] = []
         invites.map((item: InviteModelInterface) => {
+          if(item.sender == user.userName){
+            if(item.response === undefined ){
+              console.log(`sem resposta ao convite...`)
+            }else if(item.response){
+              alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
+              router.push('/search_player/game')
+              inviteDelete(item)
+            }else{
+              alert(`${item.recipient} recusou o seu convite!`)
+              inviteDelete(item)
+            }
+          }
           if(item.recipient == user.userName){
-            arrayInvites.push(item)
+            if(item.response === undefined ){
+              arrayInvites.push(item)
+            }else if(item.response){
+              alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
+              router.push('/search_player/game')
+            }else{
+              console.log(`Você recusou o convite de ${item.sender}!`)
+            }
           }
         })
         setListInvites(arrayInvites)
       }
     }
-  }, [user.userName])
+  }, [user.userName, router])
 
 
   function userOnline() {
@@ -85,6 +104,15 @@ export default function SearchPlayer(){
     })
   }
 
+  function inviteDelete(invite: InviteModelInterface){
+    axios.delete(`/multiplayer/invite/${JSON.stringify(invite)}`).then((res) => {
+      console.log(res.data)
+    }).catch(err => {
+      console.error(err)
+      console.error('Não foi possível deletar o convite!')
+    })
+  }
+
   return (
     <section className={styles.container}>
       <h1>Lista de jogadores online</h1>
@@ -103,7 +131,7 @@ export default function SearchPlayer(){
         ))}
       </ul>
 
-      {listInvites && (
+      {listInvites[0] && (
         <ol className={styles.container_invites}>
           <h3>Convites</h3>
           {listInvites.map((item: InviteModelInterface, index: number) => (

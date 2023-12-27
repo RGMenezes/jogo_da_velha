@@ -21,14 +21,14 @@ export async function GET( req: Request ) {
   try {
     Database()
     const db = mongoose.connection.db
-    const collection = db.collection('logedusers')
+    const collection = db.collection('invites')
     const { readable, writable } = new TransformStream()
   
     const changeStream = collection.watch()
   
     changeStream.on('change', (change) => updateListInvites(writable))
   
-    updateListInvites(writable)
+    await updateListInvites(writable)
     
     return new Response(readable, {
       status: 200,

@@ -28,7 +28,7 @@ export async function GET( req: Request ) {
   
     changeStream.on('change', (change) => updateListLogedUser(writable))
   
-    updateListLogedUser(writable)
+    await updateListLogedUser(writable)
     
     return new Response(readable, {
       status: 200,
