@@ -19,7 +19,7 @@ export async function GET( req: Request ) {
   }
 
   try {
-    await Database()
+    Database()
     const db = mongoose.connection.db
     const collection = db.collection('games')
     const { readable, writable } = new TransformStream()
