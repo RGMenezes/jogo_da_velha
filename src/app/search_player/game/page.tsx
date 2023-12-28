@@ -7,7 +7,7 @@ import styles from './page.module.css'
 import Button from '@form/Button'
 import { useSelector } from 'react-redux'
 import { User } from '@/redux/user/slice'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { GameModelInterface } from '@/server/model/Game'
 
@@ -17,6 +17,14 @@ export default function SearchPlayer(){
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   const [game, setGame] = useState<GameModelInterface>()
+
+  const gameActionUser = useCallback((action: string) => {
+    axios.post('/game/action', {game, action, user}).then((res) => {
+      console.log(res.data)
+    }).catch((err) => {
+      console.log(`Erro ao conectar com o servidor: ${err}`)
+    })
+  }, [game, user])
 
   useEffect(() => {
     if(user._id){
@@ -28,6 +36,11 @@ export default function SearchPlayer(){
           data.game.map((item: GameModelInterface) => {
             if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
               setGame(item)
+              if(item.result){
+                alert(`${item.result} ganho o jogo!`)
+                gameActionUser('delete')
+                router.back()
+              }
             }else{
               alert('Você não está em uma partida! voltando para página anterior...')
               router.back()
@@ -36,21 +49,13 @@ export default function SearchPlayer(){
         }
       }
     }
-  }, [user, router])
-
-  function gameActionUser(action: string){
-    axios.post('/game/action', {game, action, user}).then((res) => {
-      console.log(res.data)
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
+  }, [user, router, gameActionUser])
 
   return (
     <>{game && <section className={styles.container}>
       <header className={styles.header}>
         <h1>Jogo da velha</h1>
-        <p>{game.playerOne[0]} vs {game.playerTwo[0]}</p>
+        <p>{game.playerOne[1]} {game.playerOne[0]} vs {game.playerTwo[0]} {game.playerTwo[1]}</p>
       </header>
 
       <main className={styles.container_action}>
@@ -71,7 +76,6 @@ export default function SearchPlayer(){
           <li className={styles.box_action} onClick={() => gameActionUser('c2')}>{game.positionGame.c2}</li>
           <li className={styles.box_action} onClick={() => gameActionUser('c3')}>{game.positionGame.c3}</li>
         </ul>
-
       </main>
     </section> }</>
   )
