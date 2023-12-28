@@ -31,8 +31,8 @@ export async function POST( req: Request){
     Database()
 
     if(action == 'delete'){
-      await Game.deleteOne(game._id)
-      throw 'Partida deletada!'
+      await Game.deleteOne({_id: game._id})
+      throw new Error('Partida deletada!')
     }
     
     if(game.lastAction == '' && game.playerOne[0] != user.userName) throw new Error('Espere seu adversário jogar!')

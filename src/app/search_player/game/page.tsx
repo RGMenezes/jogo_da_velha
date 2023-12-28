@@ -18,8 +18,8 @@ export default function SearchPlayer(){
 
   const [game, setGame] = useState<GameModelInterface>()
 
-  const gameActionUser = useCallback((action: string) => {
-    axios.post('/game/action', {game, action, user}).then((res) => {
+  const deleteGame = useCallback(() => {
+    axios.post('/game/action', {game, action: 'delete', user}).then((res) => {
       console.log(res.data)
     }).catch((err) => {
       console.log(`Erro ao conectar com o servidor: ${err}`)
@@ -38,7 +38,7 @@ export default function SearchPlayer(){
               setGame(item)
               if(item.result){
                 alert(`${item.result} ganho o jogo!`)
-                gameActionUser('delete')
+                deleteGame()
                 router.back()
               }
             }else{
@@ -49,7 +49,16 @@ export default function SearchPlayer(){
         }
       }
     }
-  }, [user, router, gameActionUser])
+  }, [user, router, deleteGame])
+
+  function gameActionUser(action: string){
+    axios.post('/game/action', {game, action, user}, {timeout: 10000}).then((res) => {
+      console.log(res.data)
+    }).catch((err) => {
+      console.error(`Erro ao conectar com o servidor: `)
+      console.error(err)
+    })
+  }
 
   return (
     <>{game && <section className={styles.container}>
