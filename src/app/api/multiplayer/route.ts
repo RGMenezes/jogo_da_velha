@@ -19,13 +19,8 @@ export async function GET( req: Request ) {
   }
 
   try {
-    await Database()
-    const db = mongoose.connection.db
-
-    console.log(db)
-    if(!db) throw new Error('Não foi possivel conectar ao mongo...')
-
-    const collection = db.collection('logedusers')
+    const collection = await Database('logedusers')
+    if(!collection) throw new Error('Erro ao conectar-se com a collection')
     const { readable, writable } = new TransformStream()
   
     const changeStream = collection.watch()
