@@ -22,6 +22,7 @@ export async function GET( req: Request ) {
     await Database()
     const db = mongoose.connection.db
 
+    console.log(db)
     if(!db) throw new Error('Não foi possivel conectar ao mongo...')
 
     const collection = db.collection('logedusers')
