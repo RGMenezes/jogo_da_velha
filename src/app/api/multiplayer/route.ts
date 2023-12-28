@@ -39,6 +39,7 @@ export async function GET( req: Request ) {
       }
     })
   } catch (err) {
+    console.error(err)
     return new Response(`Error: ${err}`, {
       status: 404,
       headers: {
