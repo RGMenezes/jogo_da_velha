@@ -14,7 +14,7 @@ const nextAuthOptions: NextAuthOptions = {
         password: { label: 'password', type: 'password'}
       },
       async authorize(credentials, req): Promise<any> {
-        Database()
+        await Database()
 
         if(!credentials?.email || !credentials?.password ){
           throw new Error("Dados ausentes!");

@@ -19,7 +19,7 @@ export async function GET( req: Request ) {
   }
 
   try {
-    Database()
+    await Database()
     const db = mongoose.connection.db
     const collection = db.collection('invites')
     const { readable, writable } = new TransformStream()
@@ -39,6 +39,7 @@ export async function GET( req: Request ) {
       }
     })
   } catch (err) {
+    console.error(err)
     return new Response(`Error: ${err}`, {
       status: 404,
       headers: {

@@ -28,7 +28,7 @@ export async function POST( req: Request){
   }
 
   try {
-    Database()
+    await Database()
 
     if(action == 'delete'){
       await Game.deleteOne({_id: game._id})

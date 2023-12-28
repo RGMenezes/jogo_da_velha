@@ -4,7 +4,7 @@ import User from "@/server/model/User"
 import { NextResponse } from "next/server"
 
 export async function POST( req: Request ) {
-  Database()
+  await Database()
   const { userId }: { userId: string } = await req.json()
 
   try {

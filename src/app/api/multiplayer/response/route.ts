@@ -3,7 +3,7 @@ import Invites from "@/server/model/Invites"
 import { NextResponse } from "next/server"
 
 export async function POST( req: Request ) {
-  Database()
+  await Database()
   const { inviteId, inviteResponse }: { userName: string, inviteId: string, inviteResponse: boolean } = await req.json()
 
   try {

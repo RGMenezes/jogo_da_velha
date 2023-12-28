@@ -6,7 +6,7 @@ import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
 import { NextResponse } from "next/server"
 
 export async function DELETE( req: Request, { params }: { params: Params } ) {
-  Database()
+  await Database()
   const invite: InviteModelInterface = JSON.parse(params.delete[0])
 
   try {

@@ -3,7 +3,7 @@ import User from '@/server/model/User';
 import Database from '@/server/database/DataBase';
 
 export async function POST( req: Request ) {
-  Database()
+  await Database()
   const res: typeof NextResponse = NextResponse
 
   const { email }: {email: string} = await req.json()
