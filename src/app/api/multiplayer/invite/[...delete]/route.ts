@@ -1,5 +1,5 @@
 import Database from "@/server/database/DataBase"
-import game from "@/server/model/Game"
+import game, { defaultPositionGame } from "@/server/model/Game"
 import invites, { InviteModelInterface } from "@/server/model/Invites"
 import logedUser from "@/server/model/LogedUser"
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
@@ -22,7 +22,9 @@ export async function DELETE( req: Request, { params }: { params: Params } ) {
     if(invite.response){
       const newGame = new game({
         playerOne: [invite.sender, 'X'],
-        playerTwo: [invite.recipient, 'O']
+        playerTwo: [invite.recipient, 'O'],
+        positionGame: defaultPositionGame,
+        lastAction: ''
       })
       
       await newGame.save()
