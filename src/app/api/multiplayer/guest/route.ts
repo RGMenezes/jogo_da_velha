@@ -19,6 +19,7 @@ export async function GET( req: Request ) {
   }
 
   try {
+    await Database()
     const collection = await Database('invites')
     if(!collection) throw new Error('Erro ao conectar-se com a collection')
 

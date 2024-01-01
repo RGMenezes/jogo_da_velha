@@ -19,6 +19,7 @@ export async function GET( req: Request ) {
   }
 
   try {
+    await Database()
     const collection = await Database('games')
     if(!collection) throw new Error('Erro ao conectar-se com a collection')
     const { readable, writable } = new TransformStream()
