@@ -1,6 +1,5 @@
 import Database from "@/server/database/DataBase"
-import game from "@/server/model/Game"
-import mongoose from "mongoose"
+import Game from "@/server/model/Game"
 
 export async function GET( req: Request ) {
 
@@ -13,18 +12,17 @@ export async function GET( req: Request ) {
   }
 
   async function updateListGame(writable: WritableStream<any>){
-    await game.find({}).then((res) => {
+    await Game.find({}).then((res) => {
       sendEvent({game: res}, writable)
     }).catch(err => console.log(err))
   }
 
   try {
     await Database()
-    const collection = await Database('games')
-    if(!collection) throw new Error('Erro ao conectar-se com a collection')
+    if(!Game) throw new Error('Erro ao conectar-se com a collection')
     const { readable, writable } = new TransformStream()
   
-    const changeStream = collection.watch()
+    const changeStream = Game.watch()
   
     changeStream.on('change', (change) => updateListGame(writable))
   

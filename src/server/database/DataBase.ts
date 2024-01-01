@@ -1,17 +1,11 @@
-import mongoose, { Collection } from "mongoose"
+import mongoose, { Collection, mongo } from "mongoose"
 
-export default async function Database(collectionName: string = 'defaultCollection'): Promise<Collection | null>{    
-  try {
-    if(!process.env.DATABASE) throw new Error('DATABASE[ERROR]: Variavel de ambiente incorreta!')
-    mongoose.Promise = global.Promise;
-    await mongoose.connect(process.env.DATABASE)
-    if (mongoose.connection.readyState !== 1) {
-      throw new Error("Erro ao se conectar ao mongo...");
-    }
-    return mongoose.connection.collection(collectionName)
-
-  } catch (error) {
-    console.error(error)
-    return null
+export default async function Database(){    
+  if(process.env.DATABASE){
+    mongoose.Promise = global.Promise
+    mongoose.connect(process.env.DATABASE).then().catch((err) => {
+      console.error('Não foi possivel conectar ao mongo...')
+      console.error(err)
+    })
   }
 }

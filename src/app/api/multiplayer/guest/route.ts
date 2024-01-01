@@ -1,6 +1,5 @@
 import Database from "@/server/database/DataBase"
 import Invites from "@/server/model/Invites"
-import mongoose from "mongoose"
 
 export async function GET( req: Request ) {
 
@@ -20,12 +19,11 @@ export async function GET( req: Request ) {
 
   try {
     await Database()
-    const collection = await Database('invites')
-    if(!collection) throw new Error('Erro ao conectar-se com a collection')
+    if(!Invites) throw new Error('Erro ao conectar-se com a collection')
 
     const { readable, writable } = new TransformStream()
   
-    const changeStream = collection.watch()
+    const changeStream = Invites.watch()
   
     changeStream.on('change', (change) => updateListInvites(writable))
   

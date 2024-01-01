@@ -1,6 +1,5 @@
 import Database from "@/server/database/DataBase"
 import LogedUser from "@/server/model/LogedUser"
-import mongoose from "mongoose"
 
 export async function GET( req: Request ) {
 
@@ -20,11 +19,10 @@ export async function GET( req: Request ) {
 
   try {
     await Database()
-    const collection = await Database('logedusers')
-    if(!collection) throw new Error('Erro ao conectar-se com a collection')
+    if(!LogedUser) throw new Error('Erro ao conectar-se com a collection')
     const { readable, writable } = new TransformStream()
   
-    const changeStream = collection.watch()
+    const changeStream = LogedUser.watch()
   
     changeStream.on('change', (change) => updateListLogedUser(writable))
   
