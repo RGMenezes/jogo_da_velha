@@ -12,10 +12,9 @@ export async function GET( req: Request ) {
   }
 
   async function updateListLogedUser(writable: WritableStream<any>){
-    sendEvent({logedUsers: [12, 12 ,12 ]}, writable)
-    // await LogedUser.find({}).then((res) => {
-    //   sendEvent({logedUsers: res}, writable)
-    // }).catch(err => console.log(err))
+    await LogedUser.find({}).then((res) => {
+      sendEvent({logedUsers: res}, writable)
+    }).catch(err => console.log(err))
   }
 
   try {
@@ -23,9 +22,9 @@ export async function GET( req: Request ) {
     if(!LogedUser) throw new Error('Erro ao conectar-se com a collection')
     const { readable, writable } = new TransformStream()
   
-    // const changeStream = LogedUser.watch()
+    const changeStream = LogedUser.watch()
   
-    // changeStream.on('change', (change) => updateListLogedUser(writable))
+    changeStream.on('change', (change) => updateListLogedUser(writable))
   
     await updateListLogedUser(writable)
     
