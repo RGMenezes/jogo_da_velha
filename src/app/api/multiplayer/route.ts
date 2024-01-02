@@ -3,19 +3,20 @@ import LogedUser from "@/server/model/LogedUser"
 
 export async function GET( req: Request ) {
 
-  // async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
-  //   const writer = writable.getWriter()
+  async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
+    const writer = writable.getWriter()
 
-  //   await writer.write(`data: ${JSON.stringify(data)}\n\n`).then().catch((err) => {
-  //     writer.abort()
-  //   }).finally(() => writer.releaseLock())
-  // }
+    await writer.write(`data: ${JSON.stringify(data)}\n\n`).then().catch((err) => {
+      writer.abort()
+    }).finally(() => writer.releaseLock())
+  }
 
-  // async function updateListLogedUser(writable: WritableStream<any>){
-  //   await LogedUser.find({}).then((res) => {
-  //     sendEvent({logedUsers: res}, writable)
-  //   }).catch(err => console.log(err))
-  // }
+  async function updateListLogedUser(writable: WritableStream<any>){
+    sendEvent({logedUsers: [12, 12 ,12 ]}, writable)
+    // await LogedUser.find({}).then((res) => {
+    //   sendEvent({logedUsers: res}, writable)
+    // }).catch(err => console.log(err))
+  }
 
   try {
     await Database()
@@ -26,7 +27,7 @@ export async function GET( req: Request ) {
   
     // changeStream.on('change', (change) => updateListLogedUser(writable))
   
-    // await updateListLogedUser(writable)
+    await updateListLogedUser(writable)
     
     return new Response(readable, {
       status: 200,
