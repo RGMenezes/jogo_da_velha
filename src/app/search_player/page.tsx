@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { LogedUserModelInterface } from '@/server/model/LogedUser'
 import { InviteModelInterface } from '@/server/model/Invites'
+import pusher from '@/pusher/client'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
@@ -21,52 +22,62 @@ export default function SearchPlayer(){
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/multiplayer')
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if(data.logedUsers){
-        setListUsers(data.logedUsers)
+    axios.get('/multiplayer').then((res) => {
+      console.log(res.data)
+      console.log('axios rota multiplayer')
+    }).catch(err => console.error(err))
+    
+    if(pusher){
+      const channel = pusher.subscribe('game')
+
+      channel.bind('teste', function(data: any) {
+        setListUsers(data)
+      })
+      
+      return () => {
+        channel.unbind()
+        if(pusher) pusher.disconnect()
       }
     }
   }, [])
 
-  useEffect(() => {
-    const eventSource = new EventSource('/api/multiplayer/guest')
+  // useEffect(() => {
+  //   const eventSource = new EventSource('/api/multiplayer/guest')
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if(data.invites){
-        const invites = data.invites
-        const arrayInvites: object[] = []
-        invites.map((item: InviteModelInterface) => {
-          if(item.sender == user.userName){
-            if(item.response === undefined ){
-              console.log(`sem resposta ao convite...`)
-            }else if(item.response){
-              alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
-              router.push('/search_player/game')
-              inviteDelete(item)
-            }else{
-              alert(`${item.recipient} recusou o seu convite!`)
-              inviteDelete(item)
-            }
-          }
-          if(item.recipient == user.userName){
-            if(item.response === undefined ){
-              arrayInvites.push(item)
-            }else if(item.response){
-              alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
-              router.push('/search_player/game')
-            }else{
-              console.log(`Você recusou o convite de ${item.sender}!`)
-            }
-          }
-        })
-        setListInvites(arrayInvites)
-      }
-    }
-  }, [user.userName, router])
+  //   eventSource.onmessage = (event) => {
+  //     const data = JSON.parse(event.data)
+  //     if(data.invites){
+  //       const invites = data.invites
+  //       const arrayInvites: object[] = []
+  //       invites.map((item: InviteModelInterface) => {
+  //         if(item.sender == user.userName){
+  //           if(item.response === undefined ){
+  //             console.log(`sem resposta ao convite...`)
+  //           }else if(item.response){
+  //             alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
+  //             router.push('/search_player/game')
+  //             inviteDelete(item)
+  //           }else{
+  //             alert(`${item.recipient} recusou o seu convite!`)
+  //             inviteDelete(item)
+  //           }
+  //         }
+  //         if(item.recipient == user.userName){
+  //           if(item.response === undefined ){
+  //             arrayInvites.push(item)
+  //           }else if(item.response){
+  //             alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
+  //             router.push('/search_player/game')
+  //           }else{
+  //             console.log(`Você recusou o convite de ${item.sender}!`)
+  //           }
+  //         }
+  //       })
+  //       setListInvites(arrayInvites)
+  //     }
+  //   }
+  // }, [user.userName, router])
 
 
   function userOnline() {
