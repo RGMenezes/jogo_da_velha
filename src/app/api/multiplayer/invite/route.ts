@@ -1,3 +1,4 @@
+import pusher from "@/pusher/server"
 import Database from "@/server/database/DataBase"
 import invites from "@/server/model/Invites"
 import LogedUser from "@/server/model/LogedUser"
@@ -19,6 +20,12 @@ export async function POST( req: Request ) {
     })
 
     await newInvite.save()
+
+    const listInvite = await invites.find({})
+
+    if(pusher){
+      pusher.trigger('game', 'invite', listInvite)
+    }
 
     return NextResponse.json('Convite enviado!')
   } catch (err) {

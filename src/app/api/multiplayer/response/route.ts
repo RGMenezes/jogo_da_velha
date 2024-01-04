@@ -1,3 +1,4 @@
+import pusher from "@/pusher/server"
 import Database from "@/server/database/DataBase"
 import Invites from "@/server/model/Invites"
 import { NextResponse } from "next/server"
@@ -15,6 +16,12 @@ export async function POST( req: Request ) {
     inviteExist.response = inviteResponse
 
     await inviteExist.save()
+
+    const listInvite = await Invites.find({})
+
+    if(pusher){
+      pusher.trigger('game', 'invite', listInvite)
+    }
 
     return NextResponse.json('Resposta enviada!')
   } catch (err) {

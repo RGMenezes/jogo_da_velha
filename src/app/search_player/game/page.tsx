@@ -4,10 +4,9 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 
-import Button from '@form/Button'
 import { useSelector } from 'react-redux'
 import { User } from '@/redux/user/slice'
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { GameModelInterface } from '@/server/model/Game'
 import pusher from '@/pusher/client'
@@ -27,31 +26,39 @@ export default function SearchPlayer(){
     })
   }, [game, user])
 
-  useEffect(() => {
-    axios.get('/game').then().catch(err => console.error(err))
+  const showActions = useCallback((data: GameModelInterface[]) => {
+    if(data){
+      data.map((item: GameModelInterface) => {
+        if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
+          setGame(item)
+          if(item.result){
+            console.log(`${item.result} ganhou o jogo!`)
+            deleteGame()
+            router.back()
+          }
+        }else{
+          console.log('Você não está em uma partida! voltando para página anterior...')
+          router.back()
+        }
+      })
+    }
+  }, [deleteGame, router, user.userName])
 
+  useEffect(() => {
+    axios.get('/game').then((res) => {
+      showActions(res.data)
+    }).catch(err => console.error(err))
+  }, [showActions])
+  
+  useEffect(() => {
     if(pusher){
       const channel = pusher.subscribe('game')
 
       channel.bind('game', (data: GameModelInterface[]) => {
-        if(data){
-          data.map((item: GameModelInterface) => {
-            if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
-              setGame(item)
-              if(item.result){
-                alert(`${item.result} ganho o jogo!`)
-                deleteGame()
-                router.back()
-              }
-            }else{
-              alert('Você não está em uma partida! voltando para página anterior...')
-              router.back()
-            }
-          })
-        }
+        showActions(data)
       })
     }
-  }, [user, router, deleteGame])
+  }, [showActions])
 
   function gameActionUser(action: string){
     axios.post('/game/action', {game, action, user}, {timeout: 10000}).then((res) => {

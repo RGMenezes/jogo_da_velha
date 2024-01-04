@@ -1,5 +1,6 @@
+import pusher from "@/pusher/server";
 import Database from "@/server/database/DataBase";
-import Game, { GameModelInterface, PositionGame } from "@/server/model/Game";
+import Game, { GameModelInterface } from "@/server/model/Game";
 import { UserModelInterface } from "@/server/model/User";
 import { NextResponse } from "next/server";
 
@@ -60,6 +61,12 @@ export async function POST( req: Request){
     const newGame = new Game(victory(databaseGame))
 
     await newGame.save()
+
+    const listGame = await Game.find({})
+
+    if(pusher){
+      pusher.trigger('game', 'game', listGame)
+    }
 
     return NextResponse.json('Jogada feita com sucesso!')
   } catch (err) {

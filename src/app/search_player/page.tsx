@@ -7,10 +7,10 @@ import styles from './page.module.css'
 import Button from '@form/Button'
 import { useSelector } from 'react-redux'
 import { User } from '@/redux/user/slice'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { LogedUserModelInterface, LogedUserSchema } from '@/server/model/LogedUser'
-import { InviteModelInterface } from '@/server/model/Invites'
+import invites, { InviteModelInterface } from '@/server/model/Invites'
 import pusher from '@/pusher/client'
 
 export default function SearchPlayer(){
@@ -20,6 +20,37 @@ export default function SearchPlayer(){
   const [listInvites, setListInvites] = useState<InviteModelInterface[]>([])  
 
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
+
+  const updateInvite = useCallback((invites: InviteModelInterface[]) => {
+    if(invites){
+      const arrayInvites: InviteModelInterface[] = []
+      invites.map((item: InviteModelInterface) => {
+        if(item.sender == user.userName){
+          if(item.response === undefined ){
+            console.log(`sem resposta ao convite...`)
+          }else if(item.response){
+            console.log(`${item.recipient} aceitou o seu convite, indo para partida!`)
+            router.push('/search_player/game')
+            inviteDelete(item)
+          }else{
+            console.log(`${item.recipient} recusou o seu convite!`)
+            inviteDelete(item)
+          }
+        }
+        if(item.recipient == user.userName){
+          if(item.response === undefined ){
+            arrayInvites.push(item)
+          }else if(item.response){
+            console.log(`Você aceitou o convite de ${item.sender}, indo para partida!`)
+            router.push('/search_player/game')
+          }else{
+            console.log(`Você recusou o convite de ${item.sender}!`)
+          }
+        }
+      })
+      setListInvites(arrayInvites)
+    }
+  }, [router, user.userName])
 
   useEffect(() => {
     axios.get('/multiplayer').then((res) => {
@@ -38,53 +69,25 @@ export default function SearchPlayer(){
   },[])
 
   useEffect(() => {
+    axios.get('/multiplayer/guest').then((res) => {
+      updateInvite(res.data)
+    }).catch(err => console.error(err))
+  }, [updateInvite])
 
-    axios.get('/multiplayer/guest').then().catch(err => console.error(err))
-
+  useEffect(() => {
     if(pusher){
       const channel = pusher.subscribe('game')
 
-      channel.bind('invites', function(data: InviteModelInterface[]){
-        if(data){
-          const invites = data
-          const arrayInvites: InviteModelInterface[] = []
-          invites.map((item: InviteModelInterface) => {
-            if(item.sender == user.userName){
-              if(item.response === undefined ){
-                console.log(`sem resposta ao convite...`)
-              }else if(item.response){
-                alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
-                router.push('/search_player/game')
-                inviteDelete(item)
-              }else{
-                alert(`${item.recipient} recusou o seu convite!`)
-                inviteDelete(item)
-              }
-            }
-            if(item.recipient == user.userName){
-              if(item.response === undefined ){
-                arrayInvites.push(item)
-              }else if(item.response){
-                alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
-                router.push('/search_player/game')
-              }else{
-                console.log(`Você recusou o convite de ${item.sender}!`)
-              }
-            }
-          })
-          setListInvites(arrayInvites)
-        }
-      })
+      channel.bind('invite', (data: InviteModelInterface[]) => updateInvite(data))
     }
-  }, [user.userName, router])
-
+  }, [updateInvite])
 
   function userOnline() {
     if(user._id){
       axios.post('/multiplayer/online', {userId: user._id}).then((res) => {
-        alert(res.data)
+        console.log(res.data)
       }).catch(err => {
-        console.log(err)
+        console.error(err)
         alert('Não foi possível conectar com o servidor!')
       })
     }else{
@@ -97,9 +100,9 @@ export default function SearchPlayer(){
       alert('Você não pode jogar contra você mesmo.')
     }else{
       axios.post('/multiplayer/invite', {adversary: inviteAdversary, user: user.userName}).then((res) => {
-        alert(res.data)
+        console.log(res.data)
       }).catch(err => {
-        console.log(err)
+        console.error(err)
         alert('Não foi possível conectar com o servidor!')
       })
     }
@@ -107,9 +110,9 @@ export default function SearchPlayer(){
 
   function inviteResponse(res: boolean, id: string){
     axios.post('/multiplayer/response', {inviteId: id, inviteResponse: res}).then((res) => {
-      alert(res.data)
+      console.log(res.data)
     }).catch(err => {
-      console.log(err)
+      console.error(err)
       alert('Não foi possível conectar com o servidor!')
     })
   }
