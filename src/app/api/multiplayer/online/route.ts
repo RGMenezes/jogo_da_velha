@@ -1,3 +1,4 @@
+import pusher from "@/pusher/server"
 import Database from "@/server/database/DataBase"
 import LogedUser from "@/server/model/LogedUser"
 import User from "@/server/model/User"
@@ -20,6 +21,14 @@ export async function POST( req: Request ) {
     })
 
     await newLogedUser.save()
+
+    const listLogedUsers = await LogedUser.find({})
+
+    if(pusher){
+      pusher.trigger('game', 'logedUser', listLogedUsers)
+    }else{
+      throw new Error('Não foi possivel se conectar ao pusher!')
+    }
 
     return NextResponse.json('Usuário conectado com sucesso!')
   } catch (err) {

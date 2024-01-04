@@ -22,9 +22,12 @@ export default function SearchPlayer(){
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   useEffect(() => {
+    axios.get('/multiplayer').then((res) => {
+      setListUsers(res.data)
+    }).catch(err => console.error(err))
+  }, [])
 
-    axios.get('/multiplayer').then().catch(err => console.error(err))
-    
+  useEffect(() => {
     if(pusher){
       const channel = pusher.subscribe('game')
 
@@ -32,7 +35,7 @@ export default function SearchPlayer(){
         setListUsers(data)
       })
     }
-  }, [])
+  },[])
 
   useEffect(() => {
 
