@@ -10,6 +10,7 @@ import { User } from '@/redux/user/slice'
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import axios from '@/server/axios'
 import { GameModelInterface } from '@/server/model/Game'
+import pusher from '@/pusher/client'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
@@ -26,30 +27,31 @@ export default function SearchPlayer(){
     })
   }, [game, user])
 
-  // useEffect(() => {
-  //   if(user._id){
-  //     const eventSource = new EventSource('/api/game')
+  useEffect(() => {
+    axios.get('/game').then().catch(err => console.error(err))
 
-  //     eventSource.onmessage = (event) => {
-  //       const data = JSON.parse(event.data)
-  //       if(data.game){
-  //         data.game.map((item: GameModelInterface) => {
-  //           if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
-  //             setGame(item)
-  //             if(item.result){
-  //               alert(`${item.result} ganho o jogo!`)
-  //               deleteGame()
-  //               router.back()
-  //             }
-  //           }else{
-  //             alert('Você não está em uma partida! voltando para página anterior...')
-  //             router.back()
-  //           }
-  //         })
-  //       }
-  //     }
-  //   }
-  // }, [user, router, deleteGame])
+    if(pusher){
+      const channel = pusher.subscribe('game')
+
+      channel.bind('game', (data: GameModelInterface[]) => {
+        if(data){
+          data.map((item: GameModelInterface) => {
+            if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
+              setGame(item)
+              if(item.result){
+                alert(`${item.result} ganho o jogo!`)
+                deleteGame()
+                router.back()
+              }
+            }else{
+              alert('Você não está em uma partida! voltando para página anterior...')
+              router.back()
+            }
+          })
+        }
+      })
+    }
+  }, [user, router, deleteGame])
 
   function gameActionUser(action: string){
     axios.post('/game/action', {game, action, user}, {timeout: 10000}).then((res) => {

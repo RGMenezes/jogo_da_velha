@@ -1,51 +1,31 @@
-// import Database from "@/server/database/DataBase"
-// import Invites from "@/server/model/Invites"
+import pusher from "@/pusher/server"
+import Database from "@/server/database/DataBase"
+import Invites from "@/server/model/Invites"
+import { NextResponse } from "next/server"
 
-// export async function GET( req: Request ) {
+export async function GET( req: Request ) {
 
-//   async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
-//     const writer = writable.getWriter()
+  async function updateListInvites(){
+    await Invites.find({}).then((res) => {
+      if(pusher){
+        pusher.trigger('game', 'invites', res)
+      }
+    }).catch(err => console.log(err))
+  }
 
-//     await writer.write(`data: ${JSON.stringify(data)}\n\n`).then().catch((err) => {
-//       writer.abort()
-//     }).finally(() => writer.releaseLock())
-//   }
-
-//   async function updateListInvites(writable: WritableStream<any>){
-//     await Invites.find({}).then((res) => {
-//       sendEvent({invites: res}, writable)
-//     }).catch(err => console.log(err))
-//   }
-
-//   try {
-//     await Database()
-//     if(!Invites) throw new Error('Erro ao conectar-se com a collection')
-
-//     const { readable, writable } = new TransformStream()
+  try {
+    await Database()
+    if(!Invites) throw new Error('Erro ao conectar-se com a collection')
   
-//     const changeStream = Invites.watch()
+    const changeStream = Invites.watch()
   
-//     changeStream.on('change', (change) => updateListInvites(writable))
+    changeStream.on('change', (change) => updateListInvites())
   
-//     await updateListInvites(writable)
+    await updateListInvites()
     
-//     return new Response(readable, {
-//       status: 200,
-//       headers: {
-//         'Content-Type': 'text/event-stream',
-//         'Cache-Control': 'no-cache',
-//         'Connection': 'keep-alive',
-//       }
-//     })
-//   } catch (err) {
-//     console.error(err)
-//     return new Response(`Error: ${err}`, {
-//       status: 404,
-//       headers: {
-//         'Content-Type': 'text/event-stream',
-//         'Cache-Control': 'no-cache',
-//         'Connection': 'keep-alive',
-//       }
-//     })
-//   }
-// }
+    return NextResponse.json('Lista de convites atualizada.')
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json('Houve um erro ao atualizar lista de convites!')
+  }
+}

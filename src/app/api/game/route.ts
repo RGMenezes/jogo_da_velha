@@ -1,49 +1,31 @@
-// import Database from "@/server/database/DataBase"
-// import Game from "@/server/model/Game"
+import pusher from "@/pusher/server"
+import Database from "@/server/database/DataBase"
+import Game from "@/server/model/Game"
+import { NextResponse } from "next/server"
 
-// export async function GET( req: Request ) {
+export async function GET( req: Request ) {
 
-//   async function sendEvent(data: Record<string, any>, writable: WritableStream<any>) {
-//     const writer = writable.getWriter()
+  async function updateListGame(){
+    await Game.find({}).then((res) => {
+      if(pusher){
+        pusher.trigger('game', 'game', res)
+      }
+    }).catch(err => console.log(err))
+  }
 
-//     await writer.write(`data: ${JSON.stringify(data)}\n\n`).then().catch((err) => {
-//       writer.abort()
-//     }).finally(() => writer.releaseLock())
-//   }
-
-//   async function updateListGame(writable: WritableStream<any>){
-//     await Game.find({}).then((res) => {
-//       sendEvent({game: res}, writable)
-//     }).catch(err => console.log(err))
-//   }
-
-//   try {
-//     await Database()
-//     if(!Game) throw new Error('Erro ao conectar-se com a collection')
-//     const { readable, writable } = new TransformStream()
+  try {
+    await Database()
+    if(!Game) throw new Error('Erro ao conectar-se com a collection')
   
-//     const changeStream = Game.watch()
+    const changeStream = Game.watch()
   
-//     changeStream.on('change', (change) => updateListGame(writable))
+    changeStream.on('change', (change) => updateListGame())
   
-//     await updateListGame(writable)
+    await updateListGame()
     
-//     return new Response(readable, {
-//       status: 200,
-//       headers: {
-//         'Content-Type': 'text/event-stream',
-//         'Cache-Control': 'no-cache',
-//         'Connection': 'keep-alive',
-//       }
-//     })
-//   } catch (err) {
-//     return new Response(`Error: ${err}`, {
-//       status: 404,
-//       headers: {
-//         'Content-Type': 'text/event-stream',
-//         'Cache-Control': 'no-cache',
-//         'Connection': 'keep-alive',
-//       }
-//     })
-//   }
-// }
+    return NextResponse.json('Lista de ações do jogo atualizada.')
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json('Houve um erro ao atualizar lista de ações do jogo!')
+  }
+}

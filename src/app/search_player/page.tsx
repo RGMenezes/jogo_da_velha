@@ -9,75 +9,71 @@ import { useSelector } from 'react-redux'
 import { User } from '@/redux/user/slice'
 import { useEffect, useState } from 'react'
 import axios from '@/server/axios'
-import { LogedUserModelInterface } from '@/server/model/LogedUser'
+import { LogedUserModelInterface, LogedUserSchema } from '@/server/model/LogedUser'
 import { InviteModelInterface } from '@/server/model/Invites'
 import pusher from '@/pusher/client'
 
 export default function SearchPlayer(){
   const router: AppRouterInstance = useRouter()
   const backPage = () :void => router.back()
-  const [listUsers, setListUsers] = useState([])
-  const [listInvites, setListInvites]: any[] = useState([])  
+  const [listUsers, setListUsers] = useState<LogedUserModelInterface[]>([])
+  const [listInvites, setListInvites] = useState<InviteModelInterface[]>([])  
 
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   useEffect(() => {
 
-    axios.get('/multiplayer').then((res) => {
-      console.log(res.data)
-      console.log('axios rota multiplayer')
-    }).catch(err => console.error(err))
+    axios.get('/multiplayer').then().catch(err => console.error(err))
     
     if(pusher){
       const channel = pusher.subscribe('game')
 
-      channel.bind('teste', function(data: any) {
+      channel.bind('logedUser', function(data: LogedUserModelInterface[]) {
         setListUsers(data)
       })
-      
-      return () => {
-        channel.unbind()
-        if(pusher) pusher.disconnect()
-      }
     }
   }, [])
 
-  // useEffect(() => {
-  //   const eventSource = new EventSource('/api/multiplayer/guest')
+  useEffect(() => {
 
-  //   eventSource.onmessage = (event) => {
-  //     const data = JSON.parse(event.data)
-  //     if(data.invites){
-  //       const invites = data.invites
-  //       const arrayInvites: object[] = []
-  //       invites.map((item: InviteModelInterface) => {
-  //         if(item.sender == user.userName){
-  //           if(item.response === undefined ){
-  //             console.log(`sem resposta ao convite...`)
-  //           }else if(item.response){
-  //             alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
-  //             router.push('/search_player/game')
-  //             inviteDelete(item)
-  //           }else{
-  //             alert(`${item.recipient} recusou o seu convite!`)
-  //             inviteDelete(item)
-  //           }
-  //         }
-  //         if(item.recipient == user.userName){
-  //           if(item.response === undefined ){
-  //             arrayInvites.push(item)
-  //           }else if(item.response){
-  //             alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
-  //             router.push('/search_player/game')
-  //           }else{
-  //             console.log(`Você recusou o convite de ${item.sender}!`)
-  //           }
-  //         }
-  //       })
-  //       setListInvites(arrayInvites)
-  //     }
-  //   }
-  // }, [user.userName, router])
+    axios.get('/multiplayer/guest').then().catch(err => console.error(err))
+
+    if(pusher){
+      const channel = pusher.subscribe('game')
+
+      channel.bind('invites', function(data: InviteModelInterface[]){
+        if(data){
+          const invites = data
+          const arrayInvites: InviteModelInterface[] = []
+          invites.map((item: InviteModelInterface) => {
+            if(item.sender == user.userName){
+              if(item.response === undefined ){
+                console.log(`sem resposta ao convite...`)
+              }else if(item.response){
+                alert(`${item.recipient} aceitou o seu convite, indo para partida!`)
+                router.push('/search_player/game')
+                inviteDelete(item)
+              }else{
+                alert(`${item.recipient} recusou o seu convite!`)
+                inviteDelete(item)
+              }
+            }
+            if(item.recipient == user.userName){
+              if(item.response === undefined ){
+                arrayInvites.push(item)
+              }else if(item.response){
+                alert(`Você aceitou o convite de ${item.sender}, indo para partida!`)
+                router.push('/search_player/game')
+              }else{
+                console.log(`Você recusou o convite de ${item.sender}!`)
+              }
+            }
+          })
+          setListInvites(arrayInvites)
+        }
+      })
+    }
+  }, [user.userName, router])
 
 
   function userOnline() {

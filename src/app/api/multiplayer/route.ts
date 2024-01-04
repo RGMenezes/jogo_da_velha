@@ -8,9 +8,9 @@ export async function GET( req: Request ) {
   async function updateListLogedUser(){
     await LogedUser.find({}).then((res) => {
       if(pusher){
-        pusher.trigger('game', 'teste', res)
+        pusher.trigger('game', 'logedUser', res)
       }
-    }).catch(err => console.log(err))
+    }).catch(err => console.error(err))
   }
 
   try {
@@ -23,9 +23,9 @@ export async function GET( req: Request ) {
   
     await updateListLogedUser()
     
-    return NextResponse.json('foi')
+    return NextResponse.json('Lista de usuários logados atualizada.')
   } catch (err) {
     console.error(err)
-    return NextResponse.json('não foi')
+    return NextResponse.json('Houve um erro ao atualizar lista de usuários logados!')
   }
 }
