@@ -11,34 +11,38 @@ import axios from '@/server/axios'
 import { GameModelInterface } from '@/server/model/Game'
 import pusher from '@/pusher/client'
 
-export default function SearchPlayer(){
+export default function Game(){
   const router: AppRouterInstance = useRouter()
 
   const user = useSelector((state: {userReducer: User}) => state.userReducer)
 
   const [game, setGame] = useState<GameModelInterface>()
 
-  const deleteGame = useCallback(() => {
+  const deleteGame = useCallback((game: GameModelInterface) => {
     axios.post('/game/action', {game, action: 'delete', user}).then((res) => {
       console.log(res.data)
     }).catch((err) => {
       console.log(`Erro ao conectar com o servidor: ${err}`)
     })
-  }, [game, user])
+  }, [user])
 
   const showActions = useCallback((data: GameModelInterface[]) => {
     if(data){
       data.map((item: GameModelInterface) => {
         if(item.playerOne[0] == user.userName || item.playerTwo[0] == user.userName){
           setGame(item)
-          if(item.result){
-            console.log(`${item.result} ganhou o jogo!`)
-            deleteGame()
-            router.back()
+          if(item.result && item.result != 'velha'){
+            alert(`${item.result} ganhou o jogo!`)
+            deleteGame(item)
+            router.push('/search_player')
+          }else if(item.result == 'velha'){
+            alert(`Deu velha! O jogo terminou empatado!`)
+            deleteGame(item)
+            router.push('/search_player')
           }
         }else{
           console.log('Você não está em uma partida! voltando para página anterior...')
-          router.back()
+          router.push('/search_player')
         }
       })
     }

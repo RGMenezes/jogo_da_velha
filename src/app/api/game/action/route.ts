@@ -13,6 +13,11 @@ export async function POST( req: Request){
 
     const resultArray = Object.entries(newGame.positionGame)
 
+    const contAction = resultArray.reduce((acc, cur) => acc + cur[1], '')
+    if(contAction.length == 9){
+      newGame.result = 'velha'
+    }
+
     if(resultArray[0][1] == resultArray[1][1] && resultArray[0][1] == resultArray[2][1] ) newGame.result = resultArray[0][1]
     else if(resultArray[3][1] == resultArray[4][1] && resultArray[3][1] == resultArray[5][1] ) newGame.result = resultArray[3][1]
     else if(resultArray[6][1] == resultArray[7][1] && resultArray[6][1] == resultArray[8][1] ) newGame.result = resultArray[6][1]
